@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script defer src="script.js"></script>
+    <title>Life Sim</title>
+</head>
+<body>
+    <div id="container">
+        <div id="userInterface">
+            <button type="button" onclick="generateTable()" id="pieceButton">Feltesz</button>
+            <button type="button" disabled onclick="startGame()" id="startButton">Indít</button>
+            <div>
+                <label for="columnCount">Oszlopok száma:</label>
+                <input type="range" name="m" id="columnCount" min="1" max="20" step="1" value="1" oninput="rangeValueChange()">
+                <span id="columnRangeValue">1</span>
+            </div>
+            <div>
+                <label for="rowCount">Sorok száma:</label>
+                <input type="range" name="n" id="rowCount" min="1" max="20" step="1" value="1" oninput="rangeValueChange()">
+                <span id="rowRangeValue">1</span>
+            </div>
+            <div>
+                <label for="pieceCount">Bábuk száma:</label>
+                <input type="range" name="piece" id="pieceCount" min="1" step="1" value="1" oninput="rangeValueChange()">
+                <span id="pieceRangeValue">1</span>
+            </div>
+     
+        </div>
+        <div id="gameContainer">
+            <div id="game">
+    
+            </div>
+        </div>
+        <div id="statistics">
+
+        </div>
+    </div>
+</body>
+</html>

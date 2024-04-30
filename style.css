@@ -1,0 +1,50 @@
+*{
+    box-sizing: border-box;
+}
+
+body{
+    min-height: 100vh;
+    width: 100%;
+    background-color: rgb(169, 248, 169);
+}
+
+#container{
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+#userInterface{
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 10px;
+
+    align-items: center;
+}
+
+button{
+    width: 200px;
+    height: 50px;
+    border-radius: 5px;
+}
+
+#gameContainer{
+    display: flex;
+    justify-content: center;
+}
+
+#game {
+    display: grid;
+    gap: 2px;
+}
+
+.cell {
+    width: 20px;
+    height: 20px;
+    background-color: lightgray;
+    border: 1px solid gray;
+    text-align: center;
+}
+
+.mine {
+    background-color: red;
+}
