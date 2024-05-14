@@ -44,7 +44,7 @@ button{
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 40px;
+    font-size: 25px;
     background-color: rgb(120, 182, 202);
     border: 1px solid gray;
     text-align: center;

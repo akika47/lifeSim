@@ -8,10 +8,13 @@ let statisticsDiv = document.getElementById("statistics");
 let table = [];
 let piecesPlaced = 0;
 
+const INTERVAL = 100;
+let pieceBlacklists = {};
+
 function rangeValueChange() {
     let columnCount = parseInt(columnSlider.value);
     let rowCount = parseInt(rowSlider.value);
-    pieceCountSlider.max = columnCount * rowCount * 0.5;
+    pieceCountSlider.max = columnCount * rowCount * 0.2;
     let pieceCount = parseInt(pieceCountSlider.value);
     document.getElementById("columnRangeValue").innerText = columnCount;
     document.getElementById("rowRangeValue").innerText = rowCount;
@@ -44,8 +47,9 @@ function generateTable() {
         let randomIndex = Math.floor(Math.random() * cellCount);
         if (!occupiedTiles.has(randomIndex)) {
             cellList[randomIndex].classList.add("piece");
-            cellList[randomIndex].innerText = "♟︎";
+            cellList[randomIndex].innerText = `♟︎${piecesPlaced}`;
             cellList[randomIndex].dataset.pieceId = piecesPlaced++;
+            pieceBlacklists[piecesPlaced - 1] = new Set(); 
             occupiedTiles.add(randomIndex);
         }
     }
@@ -60,7 +64,6 @@ function generateTable() {
         }
     }
 
-
     gameTable.style.setProperty('grid-template-columns', 'repeat(' + columnCount + ', 50px)');
     gameTable.style.setProperty('grid-template-rows', 'repeat(' + rowCount + ', 50px)');
 
@@ -72,7 +75,7 @@ let gameInterval;
 let pieceLog = {};
 
 function startGame() {
-    gameInterval = setInterval(startMoving, 1000);
+    gameInterval = setInterval(startMoving, INTERVAL);
     statisticsDiv.innerText = ""
     startButton.disabled = true;
 }
@@ -83,32 +86,37 @@ function startMoving() {
     let pieces = document.querySelectorAll('.piece');
 
     pieces.forEach(piece => {
+        let pieceId = parseInt(piece.dataset.pieceId);
         let cellIndex = Array.from(piece.parentNode.children).indexOf(piece);
         let rowSize = parseInt(rowSlider.value);
         let columnSize = parseInt(columnSlider.value);
         let directions = [];
 
-        if (cellIndex >= columnSize && lastMove[piece.dataset.pieceId] !== 'bottom') {
+        if (!pieceBlacklists[pieceId]) {
+            pieceBlacklists[pieceId] = new Set();
+        }
+
+        if (cellIndex >= columnSize && lastMove[pieceId] !== 'bottom') {
             directions.push('top');
         }
-        if (cellIndex < (rowSize - 1) * columnSize && lastMove[piece.dataset.pieceId] !== 'top') {
+        if (cellIndex < (rowSize - 1) * columnSize && lastMove[pieceId] !== 'top') {
             directions.push('bottom');
         }
-        if (cellIndex % columnSize !== 0 && lastMove[piece.dataset.pieceId] !== 'right') {
+        if (cellIndex % columnSize !== 0 && lastMove[pieceId] !== 'right') {
             directions.push('left');
         }
-        if (cellIndex % columnSize !== columnSize - 1 && lastMove[piece.dataset.pieceId] !== 'left') {
+        if (cellIndex % columnSize !== columnSize - 1 && lastMove[pieceId] !== 'left') {
             directions.push('right');
         }
 
         directions = directions.filter(direction => {
             let nextCell = getNextCell(piece, direction);
-            return nextCell && !nextCell.classList.contains('mine');
+            return nextCell && !nextCell.classList.contains('mine') && !pieceBlacklists[pieceId].has(nextCell);
         });
 
         if (directions.length > 0) {
             let preferredDirection = directions[Math.floor(Math.random() * directions.length)];
-            lastMove[piece.dataset.pieceId] = preferredDirection;
+            lastMove[pieceId] = preferredDirection;
 
             let nextCell = getNextCell(piece, preferredDirection);
             if (nextCell) {
@@ -118,18 +126,16 @@ function startMoving() {
                 } else {
                     cellData[nextCellIndex].steps++;
                 }
-                if (cellData[nextCellIndex].steps >= 10) {
-                    nextCell.classList.add('mine')
-                    piece.classList.remove('piece');
-                    piece.innerText = "";
-                }
+
             }
 
             movePiece(piece, nextCell);
         } else {
             recordPieceDeath(piece);
+            pieceBlacklists[pieceId].add(piece.parentNode);
             piece.classList.remove('piece');
             piece.innerText = "";
+
         }
     });
 
@@ -137,7 +143,6 @@ function startMoving() {
         endGame();
     }
 }
-
 function getNextCell(piece, direction) {
     let cellIndex = Array.from(piece.parentNode.children).indexOf(piece);
     let rowSize = parseInt(rowSlider.value);
@@ -173,7 +178,7 @@ function movePiece(piece, destination) {
     destination.className = piece.className;
     piece.innerText = tempText;
     piece.className = tempClasses;
-    let pieceId = piece.dataset.pieceId;
+    let pieceId = parseInt(piece.dataset.pieceId);
     if (!pieceLog[pieceId]) {
         pieceLog[pieceId] = { steps: 0 };
     }
@@ -181,7 +186,7 @@ function movePiece(piece, destination) {
 }
 
 function recordPieceDeath(piece) {
-    let pieceId = piece.dataset.pieceId;
+    let pieceId = parseInt(piece.dataset.pieceId);
     if (!pieceLog[pieceId]) {
         pieceLog[pieceId] = {
             steps: 0,
